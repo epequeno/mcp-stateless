@@ -4,8 +4,7 @@ set shell := ["bash", "-uc"]
 default:
     @just --list
 
-# Fail loudly and usefully if the toolchain is missing, rather than
-# letting a later recipe fail with a confusing error.
+# Fail loudly if the toolchain is missing, instead of failing confusingly later.
 toolchain:
     @command -v go >/dev/null || { echo "go not installed — run: brew install go"; exit 1; }
     @go version
@@ -13,10 +12,11 @@ toolchain:
 build: toolchain
     @go build ./...
 
-# The gate for the scaffold: it compiles and its tests pass.
+# The gate: build, vet, gofmt, test — mirrors CI so red is caught locally.
 verify: toolchain
     @go vet ./...
     @go test ./...
+    @test -z "$(gofmt -l .)" || { echo "not gofmt-clean:"; gofmt -l .; exit 1; }
 
 run *ARGS: toolchain
     @go run ./cmd/mcpstateless {{ARGS}}
@@ -29,9 +29,7 @@ up: toolchain
 up-pinned: toolchain
     @go run ./cmd/mcpstateless --addr :8081 --pinned
 
-# The headline number. Starts three server instances (two stateless for the
-# cross-instance test, one pinned for the counterfactual), runs the bench
-# harness against all three, then tears them down.
+# The headline number: start three instances, run the harness, tear down.
 bench: toolchain
 	-@go run ./cmd/mcpstateless --addr :8080 &
 	-@go run ./cmd/mcpstateless --addr :8082 &

@@ -1,3 +1,3 @@
 module github.com/epequeno/mcp-stateless
 
-go 1.24
+go 1.27
