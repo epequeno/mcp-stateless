@@ -24,13 +24,13 @@ const (
 // The client polls tasks/get, may send input via tasks/update, and cancels
 // via tasks/cancel.
 type Task struct {
-	TaskID          string    `json:"taskId"`
-	Status          string    `json:"status"`
-	StatusMessage   string    `json:"statusMessage,omitempty"`
-	CreatedAt       time.Time `json:"createdAt"`
-	LastUpdatedAt   time.Time `json:"lastUpdatedAt"`
-	TTLMs           int       `json:"ttlMs"`
-	PollIntervalMs  int       `json:"pollIntervalMs,omitempty"`
+	TaskID         string    `json:"taskId"`
+	Status         string    `json:"status"`
+	StatusMessage  string    `json:"statusMessage,omitempty"`
+	CreatedAt      time.Time `json:"createdAt"`
+	LastUpdatedAt  time.Time `json:"lastUpdatedAt"`
+	TTLMs          int       `json:"ttlMs"`
+	PollIntervalMs int       `json:"pollIntervalMs,omitempty"`
 }
 
 // CreateTaskResult is returned from tools/call when the server chooses to
@@ -61,7 +61,7 @@ type GetTaskParams struct {
 
 // UpdateTaskParams is the tasks/update payload.
 type UpdateTaskParams struct {
-	TaskID        string          `json:"taskId"`
+	TaskID         string          `json:"taskId"`
 	InputResponses json.RawMessage `json:"inputResponses,omitempty"`
 }
 

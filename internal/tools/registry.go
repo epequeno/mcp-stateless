@@ -16,10 +16,10 @@ import (
 // Risk classes. The governance layer requires every reachable tool to carry
 // exactly one; an empty Risk is a bug, not a default.
 const (
-	RiskRead          = "read"
-	RiskWrite         = "write"
-	RiskEgress        = "egress"
-	RiskIrreversible  = "irreversible"
+	RiskRead         = "read"
+	RiskWrite        = "write"
+	RiskEgress       = "egress"
+	RiskIrreversible = "irreversible"
 )
 
 // Tool is one callable unit. Call must be safe for concurrent use.
@@ -36,7 +36,7 @@ type Tool struct {
 	Risk string
 	// Icons is optional display metadata (spec: basic §icons).
 	Icons []protocol.Icon
-	Call func(args map[string]any) (any, error)
+	Call  func(args map[string]any) (any, error)
 }
 
 // Registry is a concurrency-safe set of tools.

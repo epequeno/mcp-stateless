@@ -41,8 +41,8 @@ const (
 	CodeInternal       = -32603
 
 	// MCP-specific codes (-32020 to -32099, spec-reserved).
-	CodeHeaderMismatch            = -32020
-	CodeMissingClientCapability   = -32021
+	CodeHeaderMismatch             = -32020
+	CodeMissingClientCapability    = -32021
 	CodeUnsupportedProtocolVersion = -32022
 )
 
@@ -56,9 +56,9 @@ const (
 // Meta is the _meta field on a request, carrying per-request protocol
 // metadata. Spec: basic §General Fields › _meta.
 type Meta struct {
-	ProtocolVersion     string          `json:"io.modelcontextprotocol/protocolVersion"`
-	ClientInfo          *Implementation `json:"io.modelcontextprotocol/clientInfo,omitempty"`
-	ClientCapabilities  json.RawMessage  `json:"io.modelcontextprotocol/clientCapabilities"`
+	ProtocolVersion    string          `json:"io.modelcontextprotocol/protocolVersion"`
+	ClientInfo         *Implementation `json:"io.modelcontextprotocol/clientInfo,omitempty"`
+	ClientCapabilities json.RawMessage `json:"io.modelcontextprotocol/clientCapabilities"`
 }
 
 // Implementation identifies a client or server.
@@ -78,8 +78,8 @@ type Request struct {
 // RequestParams holds the parsed params including _meta. The _meta field
 // can appear at the top level of params.
 type RequestParams struct {
-	Meta  *Meta           `json:"_meta,omitempty"`
-	Name  string          `json:"name,omitempty"`
+	Meta  *Meta          `json:"_meta,omitempty"`
+	Name  string         `json:"name,omitempty"`
 	Args  map[string]any `json:"arguments,omitempty"`
 	Other map[string]any `json:"-"`
 }
@@ -102,20 +102,20 @@ type Error struct {
 // Tool is one entry in a tools/list result.
 // Spec: Tools §Data Types.
 type Tool struct {
-	Name        string  `json:"name"`
-	Title       string  `json:"title,omitempty"`
-	Description string  `json:"description,omitempty"`
-	InputSchema any     `json:"inputSchema,omitempty"`
-	Icons       []Icon  `json:"icons,omitempty"`
+	Name        string `json:"name"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	InputSchema any    `json:"inputSchema,omitempty"`
+	Icons       []Icon `json:"icons,omitempty"`
 }
 
 // Icon is a visual identifier for a tool, resource, or prompt.
 // Spec: basic §General Fields › icons.
 type Icon struct {
-	Src     string   `json:"src"`
+	Src      string   `json:"src"`
 	MimeType string   `json:"mimeType,omitempty"`
-	Sizes   []string `json:"sizes,omitempty"`
-	Theme   string   `json:"theme,omitempty"`
+	Sizes    []string `json:"sizes,omitempty"`
+	Theme    string   `json:"theme,omitempty"`
 }
 
 // ListResult is the tools/list payload.
@@ -123,22 +123,22 @@ type Icon struct {
 // TTLMs is the freshness hint (milliseconds); CacheScope controls who may
 // cache. Spec: Caching §Cacheable Results.
 type ListResult struct {
-	ResultType  string `json:"resultType"`
-	Tools       []Tool `json:"tools"`
-	NextCursor  string `json:"nextCursor,omitempty"`
-	TTLMs       int    `json:"ttlMs"`
-	CacheScope  string `json:"cacheScope"`
+	ResultType string `json:"resultType"`
+	Tools      []Tool `json:"tools"`
+	NextCursor string `json:"nextCursor,omitempty"`
+	TTLMs      int    `json:"ttlMs"`
+	CacheScope string `json:"cacheScope"`
 }
 
 // DiscoverResult is the server/discover payload.
 // Spec: server/discover §Response.
 type DiscoverResult struct {
-	ResultType       string          `json:"resultType"`
-	SupportedVersions []string        `json:"supportedVersions"`
-	Capabilities     map[string]any  `json:"capabilities"`
-	Instructions     string          `json:"instructions,omitempty"`
-	TTLMs            int             `json:"ttlMs"`
-	CacheScope       string          `json:"cacheScope"`
+	ResultType        string         `json:"resultType"`
+	SupportedVersions []string       `json:"supportedVersions"`
+	Capabilities      map[string]any `json:"capabilities"`
+	Instructions      string         `json:"instructions,omitempty"`
+	TTLMs             int            `json:"ttlMs"`
+	CacheScope        string         `json:"cacheScope"`
 }
 
 // ListParams is the tools/list payload.
@@ -157,7 +157,7 @@ type CallParams struct {
 type CallResult struct {
 	ResultType string    `json:"resultType"`
 	Content    []Content `json:"content"`
-	IsError   bool      `json:"isError,omitempty"`
+	IsError    bool      `json:"isError,omitempty"`
 }
 
 // Content is one content block in a call result.

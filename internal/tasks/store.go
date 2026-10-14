@@ -35,7 +35,7 @@ type Run func() (any, error)
 // error when terminal. The handler uses this to build wire responses.
 type TaskState struct {
 	protocol.Task
-	Result any            // set when Status == TaskCompleted
+	Result any             // set when Status == TaskCompleted
 	Error  *protocol.Error // set when Status == TaskFailed
 }
 
@@ -83,11 +83,11 @@ func (s *MemoryStore) Create(run Run) (TaskState, error) {
 	slot := &taskSlot{
 		state: TaskState{
 			Task: protocol.Task{
-				TaskID:        id,
-				Status:        protocol.TaskWorking,
-				CreatedAt:     now,
-				LastUpdatedAt: now,
-				TTLMs:         3600000, // 1 hour
+				TaskID:         id,
+				Status:         protocol.TaskWorking,
+				CreatedAt:      now,
+				LastUpdatedAt:  now,
+				TTLMs:          3600000, // 1 hour
 				PollIntervalMs: 100,
 			},
 		},

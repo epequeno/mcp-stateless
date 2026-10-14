@@ -38,7 +38,7 @@ func frame(id int, method string, params any) string {
 // buildBody constructs a complete JSON-RPC body with _meta injected into params.
 func buildBody(id int, method string, params any) string {
 	meta := map[string]any{
-		"io.modelcontextprotocol/protocolVersion":     protocol.Revision,
+		"io.modelcontextprotocol/protocolVersion":    protocol.Revision,
 		"io.modelcontextprotocol/clientCapabilities": map[string]any{},
 	}
 	var paramsMap map[string]any
@@ -188,13 +188,13 @@ func crossInstancePhase(client *http.Client, addr1, addr2 string, n int) (served
 }
 
 type stats struct {
-	name        string
-	count       int
-	p50, p99    time.Duration
-	min, max    time.Duration
-	throughput  float64
+	name         string
+	count        int
+	p50, p99     time.Duration
+	min, max     time.Duration
+	throughput   float64
 	totalElapsed time.Duration
-	errCount    int
+	errCount     int
 }
 
 func compute(name string, latencies []time.Duration) stats {
@@ -206,12 +206,12 @@ func compute(name string, latencies []time.Duration) stats {
 	sort.Slice(sorted, func(i, j int) bool { return sorted[i] < sorted[j] })
 
 	return stats{
-		name:    name,
-		count:   len(sorted),
-		p50:     sorted[len(sorted)*50/100],
-		p99:     sorted[len(sorted)*99/100],
-		min:     sorted[0],
-		max:     sorted[len(sorted)-1],
+		name:  name,
+		count: len(sorted),
+		p50:   sorted[len(sorted)*50/100],
+		p99:   sorted[len(sorted)*99/100],
+		min:   sorted[0],
+		max:   sorted[len(sorted)-1],
 	}
 }
 

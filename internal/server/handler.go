@@ -140,7 +140,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.write(w, protocol.Response{
 			JSONRPC: protocol.JSONRPCVersion,
 			ID:      req.ID,
-		Result:  s.list(req.Params),
+			Result:  s.list(req.Params),
 		})
 	case "tools/call":
 		result, rpcErr := s.call(req.Params, meta)
@@ -368,12 +368,12 @@ func (s *Server) getTask(raw json.RawMessage) (any, *protocol.Error) {
 	// Build the response based on status. The result includes the task
 	// fields plus result/error for terminal states.
 	result := map[string]any{
-		"resultType": protocol.ResultComplete,
-		"taskId":     state.TaskID,
-		"status":     state.Status,
-		"createdAt":  state.CreatedAt,
+		"resultType":    protocol.ResultComplete,
+		"taskId":        state.TaskID,
+		"status":        state.Status,
+		"createdAt":     state.CreatedAt,
 		"lastUpdatedAt": state.LastUpdatedAt,
-		"ttlMs":      state.TTLMs,
+		"ttlMs":         state.TTLMs,
 	}
 	if state.PollIntervalMs > 0 {
 		result["pollIntervalMs"] = state.PollIntervalMs

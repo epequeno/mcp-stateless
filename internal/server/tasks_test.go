@@ -13,7 +13,6 @@ import (
 	"github.com/epequeno/mcp-stateless/internal/tools"
 )
 
-
 // postWithTasks is like post but includes the tasks extension capability in
 // _meta.clientCapabilities, so the server may return a CreateTaskResult.
 func postWithTasks(t *testing.T, h http.Handler, header, body string) (*httptest.ResponseRecorder, protocol.Response) {
@@ -76,8 +75,8 @@ func TestTaskCreateViaToolsCall(t *testing.T) {
 	registry := tools.NewRegistry()
 	done := make(chan struct{})
 	registry.Add(tools.Tool{
-		Name:   "slow",
-		Async:  true,
+		Name:  "slow",
+		Async: true,
 		Call: func(args map[string]any) (any, error) {
 			<-done
 			return "done-value", nil
@@ -120,8 +119,8 @@ func TestTaskCreateAndGet(t *testing.T) {
 	registry := tools.NewRegistry()
 	done := make(chan struct{})
 	registry.Add(tools.Tool{
-		Name:   "slow",
-		Async:  true,
+		Name:  "slow",
+		Async: true,
 		Call: func(args map[string]any) (any, error) {
 			<-done
 			return "done-value", nil
@@ -177,8 +176,8 @@ func TestTaskCancel(t *testing.T) {
 	registry := tools.NewRegistry()
 	done := make(chan struct{})
 	registry.Add(tools.Tool{
-		Name:   "blocker",
-		Async:  true,
+		Name:  "blocker",
+		Async: true,
 		Call: func(args map[string]any) (any, error) {
 			<-done
 			return nil, nil
@@ -219,9 +218,9 @@ func TestTaskCancel(t *testing.T) {
 func TestTaskCancelAlreadyTerminal(t *testing.T) {
 	registry := tools.NewRegistry()
 	registry.Add(tools.Tool{
-		Name:   "fast",
-		Async:  true,
-		Call: func(args map[string]any) (any, error) { return 42, nil },
+		Name:  "fast",
+		Async: true,
+		Call:  func(args map[string]any) (any, error) { return 42, nil },
 	})
 	store := tasks.NewMemoryStore()
 	s := New(Config{Stateless: true, Registry: registry, Tasks: store})
@@ -252,9 +251,9 @@ func TestTaskCancelAlreadyTerminal(t *testing.T) {
 func TestTaskSharedStoreCrossInstance(t *testing.T) {
 	registry := tools.NewRegistry()
 	registry.Add(tools.Tool{
-		Name:   "fast",
-		Async:  true,
-		Call: func(args map[string]any) (any, error) { return "ok", nil },
+		Name:  "fast",
+		Async: true,
+		Call:  func(args map[string]any) (any, error) { return "ok", nil },
 	})
 	store := tasks.NewMemoryStore()
 
@@ -282,9 +281,9 @@ func TestTaskSharedStoreCrossInstance(t *testing.T) {
 func TestTaskUpdate(t *testing.T) {
 	registry := tools.NewRegistry()
 	registry.Add(tools.Tool{
-		Name:   "fast",
-		Async:  true,
-		Call: func(args map[string]any) (any, error) { return "ok", nil },
+		Name:  "fast",
+		Async: true,
+		Call:  func(args map[string]any) (any, error) { return "ok", nil },
 	})
 	store := tasks.NewMemoryStore()
 	s := New(Config{Stateless: true, Registry: registry, Tasks: store})
@@ -332,9 +331,9 @@ func TestDiscoverAdvertisesTasks(t *testing.T) {
 func TestSyncCallWithoutTasksExtension(t *testing.T) {
 	registry := tools.NewRegistry()
 	registry.Add(tools.Tool{
-		Name:   "slow",
-		Async:  true,
-		Call: func(args map[string]any) (any, error) { return "sync-result", nil },
+		Name:  "slow",
+		Async: true,
+		Call:  func(args map[string]any) (any, error) { return "sync-result", nil },
 	})
 	s := New(Config{Stateless: true, Registry: registry})
 

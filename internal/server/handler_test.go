@@ -71,7 +71,7 @@ func withMeta(t *testing.T, body string) string {
 		// No params — add a minimal params with _meta.
 		raw["params"] = map[string]any{
 			"_meta": map[string]any{
-				"io.modelcontextprotocol/protocolVersion":     protocol.Revision,
+				"io.modelcontextprotocol/protocolVersion":    protocol.Revision,
 				"io.modelcontextprotocol/clientCapabilities": map[string]any{},
 			},
 		}
@@ -87,7 +87,7 @@ func withMeta(t *testing.T, body string) string {
 		return body
 	}
 	pmap["_meta"] = map[string]any{
-		"io.modelcontextprotocol/protocolVersion":     protocol.Revision,
+		"io.modelcontextprotocol/protocolVersion":    protocol.Revision,
 		"io.modelcontextprotocol/clientCapabilities": map[string]any{},
 	}
 	raw["params"] = pmap
@@ -301,7 +301,7 @@ func TestListPagination(t *testing.T) {
 		reg.Add(tools.Tool{
 			Name:        fmt.Sprintf("tool-%03d", i),
 			Description: "test tool",
-			Call: func(args map[string]any) (any, error) { return nil, nil },
+			Call:        func(args map[string]any) (any, error) { return nil, nil },
 		})
 	}
 
