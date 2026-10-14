@@ -29,11 +29,18 @@ up: toolchain
 up-pinned: toolchain
     @go run ./cmd/mcpstateless --addr :8081 --pinned
 
-# The headline number. Not implemented yet, so it exits non-zero on purpose
-# rather than passing silently.
+# The headline number. Starts three server instances (two stateless for the
+# cross-instance test, one pinned for the counterfactual), runs the bench
+# harness against all three, then tears them down.
 bench: toolchain
-    @echo "bench not implemented yet — see bench/README.md"
-    @exit 1
+	-@go run ./cmd/mcpstateless --addr :8080 &
+	-@go run ./cmd/mcpstateless --addr :8082 &
+	-@go run ./cmd/mcpstateless --addr :8081 --pinned &
+	@sleep 2
+	@go run ./bench
+	-@pkill -f "mcpstateless --addr :8080" || true
+	-@pkill -f "mcpstateless --addr :8082" || true
+	-@pkill -f "mcpstateless --addr :8081 --pinned" || true
 
 # Two instances behind a round-robin, no sticky sessions. Needs bench first.
 soak: bench

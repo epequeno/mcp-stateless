@@ -4,11 +4,13 @@ import "strings"
 
 // MethodFrom resolves the method name for a request.
 //
-// A stateless peer puts the method in HeaderMethod precisely so the server can
-// route without a session, without a prior initialize, and without having to
-// buffer the body first. The body remains the fallback so a session-pinned
-// client still works — which is what makes the A/B in bench/ a fair comparison
-// rather than a comparison of two different protocols.
+// The spec requires the Mcp-Method header on all Streamable HTTP POSTs
+// (§Streamable HTTP › Request Metadata › Standard Request Headers). It mirrors
+// the body's `method` field so intermediaries can route without parsing the
+// body. This function prefers the header and falls back to the body so the
+// pinned (counterfactual) mode — which represents pre-2026-07-28 servers that
+// don't send headers — still works. The stateless handler enforces the header
+// requirement separately.
 func MethodFrom(headerValue string, body *Request) string {
 	if h := strings.TrimSpace(headerValue); h != "" {
 		return h
@@ -19,13 +21,29 @@ func MethodFrom(headerValue string, body *Request) string {
 	return ""
 }
 
-// StatelessMethods are the methods the core answers without a handshake.
-var StatelessMethods = map[string]bool{
-	"initialize":              true,
-	"tools/list":              true,
-	"tools/call":              true,
-	"notifications/cancelled": true,
+// HeaderPresent reports whether the Mcp-Method header was provided.
+func HeaderPresent(headerValue string) bool {
+	return strings.TrimSpace(headerValue) != ""
 }
 
-// IsStateless reports whether a method is answerable without a session.
-func IsStateless(method string) bool { return StatelessMethods[method] }
+// CoreMethods are the methods the 2026-07-28 core answers.
+// initialize is removed; server/discover replaces it.
+// notifications/cancelled is stdio-only on Streamable HTTP.
+var CoreMethods = map[string]bool{
+	"server/discover": true,
+	"tools/list":      true,
+	"tools/call":      true,
+}
+
+// TaskMethods are the methods introduced by the Tasks extension (SEP-2663).
+var TaskMethods = map[string]bool{
+	"tasks/get":    true,
+	"tasks/update": true,
+	"tasks/cancel": true,
+}
+
+// IsCore reports whether a method is part of the core protocol.
+func IsCore(method string) bool { return CoreMethods[method] }
+
+// IsTaskMethod reports whether a method belongs to the Tasks extension.
+func IsTaskMethod(method string) bool { return TaskMethods[method] }

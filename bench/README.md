@@ -1,7 +1,8 @@
 # bench — the headline number
 
-**Not implemented.** `just bench` exits non-zero on purpose rather than passing
-silently, so the gap is visible.
+**Implemented.** `just bench` starts three server instances (two stateless on
+:8080 and :8082, one pinned on :8081), runs all four phases, and tears them
+down. The harness is `bench/main.go` — one client, one workload, both modes.
 
 ## The claim being tested
 
@@ -13,10 +14,10 @@ cannot, which is why most deployed MCP servers still need affinity.
 
 | Metric | Stateless | Pinned | Why it matters |
 |---|---|---|---|
-| p50 / p99 latency | ☐ | ☐ | affinity adds a hop or a store lookup |
-| Throughput at fixed concurrency | ☐ | ☐ | the scaling claim |
-| Requests served by instance 2+ without a session | ☐ | n/a | the property itself |
-| `tools/list` with warm `ttlMs` cache | ☐ | n/a | whether the hint is worth advertising |
+| p50 / p99 latency | ☑ | ☑ | affinity adds a hop or a store lookup |
+| Throughput at fixed concurrency | ☑ | ☑ | the scaling claim |
+| Requests served by instance 2+ without a session | ☑ | n/a | the property itself |
+| `tools/list` with warm `ttlMs` cache | ☑ | n/a | whether the hint is worth advertising |
 
 The third row is the one that actually tests the thesis. Latency and throughput
 can both improve for reasons unrelated to statelessness; only cross-instance
@@ -45,3 +46,11 @@ Before running, state what result would kill the claim:
 
 Fill in `RESULTS.md` with the number, the exact command, the commit SHA, and the
 date. A number without its command is not evidence.
+
+## Scope
+
+The bench covers `tools/*` — the stateless core. The `tasks/*` extension uses a
+per-instance in-memory store by default, so the round-robin property does not
+hold for `tasks/get` across instances without a shared store. See
+[docs/DECISIONS.md](../docs/DECISIONS.md) for the `tasks.Store` interface and the
+limitation.

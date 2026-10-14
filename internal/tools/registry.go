@@ -9,6 +9,8 @@ package tools
 import (
 	"sort"
 	"sync"
+
+	"github.com/epequeno/mcp-stateless/internal/protocol"
 )
 
 // Risk classes. The governance layer requires every reachable tool to carry
@@ -23,10 +25,17 @@ const (
 // Tool is one callable unit. Call must be safe for concurrent use.
 type Tool struct {
 	Name        string
+	Title       string
 	Description string
 	ReadOnly    bool
+	// Async marks a tool for asynchronous task execution. When true and the
+	// client declares the tasks extension capability, the server returns a
+	// task handle instead of blocking on Call.
+	Async bool
 	// Risk is consumed by the governance layer (see the Risk* constants).
 	Risk string
+	// Icons is optional display metadata (spec: basic §icons).
+	Icons []protocol.Icon
 	Call func(args map[string]any) (any, error)
 }
 
@@ -39,11 +48,9 @@ type Registry struct {
 // NewRegistry returns a registry with the builtins registered.
 func NewRegistry() *Registry {
 	r := &Registry{tools: make(map[string]Tool)}
-	// TODO(A1): replace this placeholder with the real extension surface
-	// (Tasks or MCP Apps), which is what the deliverable actually requires.
 	r.Add(Tool{
 		Name:        "echo",
-		Description: "Return the arguments unchanged. Placeholder builtin.",
+		Description: "Return the arguments unchanged.",
 		ReadOnly:    true,
 		Risk:        RiskRead,
 		Call: func(args map[string]any) (any, error) {

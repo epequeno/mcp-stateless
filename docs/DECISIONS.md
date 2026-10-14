@@ -30,3 +30,56 @@ call site. Cheaper to carry an unused string now.
 
 Matches `support-triage`. The point of the repo is that a reviewer can read and
 reuse it.
+
+## 2026-10-13 · Tasks extension, in-memory store behind an interface
+
+The Tasks surface (`tasks/create`, `tasks/get`, `tasks/cancel`) is implemented
+as an asynchronous tool invocation: create resolves a tool from the existing
+registry, runs it in the background, and hands back a handle; get polls; cancel
+abandons. Task state lives behind `tasks.Store` — an interface with an
+in-memory default.
+
+Consequence to watch: the in-memory store is per-process. Two instances behind
+a round-robin load balancer do not share it, so a `tasks/get` routed to the
+"other" instance misses. The stateless core's round-robin claim therefore does
+not hold for `tasks/*` until a shared store (Redis, database) is plugged in.
+That is the seam the interface exists for — swap the implementation, not the
+call sites. The benchmark in `bench/` must call this out: the round-robin
+property is demonstrated for `tools/*`, not for `tasks/*` with the default store.
+
+A task handle is a random hex id, not a counter, so it carries no information
+about which instance created it — the property a shared store needs to make
+the get stateless.
+
+## 2026-10-13 · Conformance rewrite — matching the published spec
+
+The scaffold was built from the release-candidate announcement. Verification
+against the published 2026-07-28 spec (modelcontextprotocol.io) found that the
+implementation was not conformant. The load-bearing divergences were fixed:
+
+- `initialize` → `server/discover` (spec: server/discover §Response)
+- `resultType: "complete"` added to all results (spec: basic §ResultType)
+- `_meta` with `protocolVersion` and `clientCapabilities` parsed from every
+  request (spec: basic §_meta)
+- `MCP-Protocol-Version` header required on stateless mode (spec: Streamable
+  HTTP §Protocol Version Header)
+- `Mcp-Method` header required in stateless mode; body fallback kept for the
+  pinned counterfactual only (spec: Streamable HTTP §Standard Request Headers)
+- `Mcp-Name` header sent for `tools/call` (spec: Streamable HTTP §Standard
+  Request Headers)
+- `cacheScope` (`"public"`/`"private"`) replaces the non-spec `Cached` boolean
+  (spec: Caching §Cache Scope Field)
+- `HeaderMismatch` error code `-32020` for missing headers (spec: basic §Error
+  Codes)
+- Tasks reshaped to SEP-2663: `tasks/create` removed; `tools/call` returns
+  `CreateTaskResult` (`resultType: "task"`) when the tool is async and the
+  client declares the `io.modelcontextprotocol/tasks` extension. Methods are
+  `tasks/get`, `tasks/update`, `tasks/cancel`. Status values renamed to
+  `working`/`completed`/`failed`/`cancelled`. Field `id` → `taskId`.
+  `notifications/cancelled` removed from the stateless method set (stdio-only
+  on Streamable HTTP).
+
+The `Mcp-Method` body fallback is kept for the pinned mode only. The spec says
+the header is REQUIRED, but the pinned mode represents pre-2026-07-28 servers
+that don't send headers — keeping the fallback makes the A/B comparison fair
+rather than making the pinned mode fail on a technicality.
