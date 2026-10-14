@@ -3,9 +3,14 @@
 Most public MCP servers still assume a session. The 2026-07-28 revision moved the
 protocol core to stateless — no `Mcp-Session-Id`, the method in a header, `resultType`
 on every result, `_meta` on every request, and a `ttlMs`/`cacheScope` caching hint on
-`tools/list` — so any instance can serve any request and a plain round-robin load
-balancer is enough. This is a Go implementation of that core, verified against the
-published specification.
+`tools/list` — so a stateless core can answer any request from any instance, and a
+plain round-robin load balancer is enough. This is a Go implementation of that core,
+checked against the published specification with every divergence itemised in
+[docs/SPEC-NOTES.md](docs/SPEC-NOTES.md).
+
+**Scope.** The round-robin property holds for `tools/*`. The `tasks/*` extension keeps
+per-instance state, so `tasks/get` does **not** survive a hop between instances without
+a shared store — see [RESULTS.md](RESULTS.md) § Scope.
 
 > ### Measured
 >
@@ -34,23 +39,21 @@ The two modes are deliberately in one binary so the comparison is fair:
 ## Run
 
 ```sh
-brew install go     # not yet installed on this machine
-just verify         # vet + test
+go version          # requires Go 1.24+ (built and measured with go1.27.2)
+just verify         # build, vet, gofmt, test
 just up             # stateless core on :8080
 just up-pinned      # session-pinned comparison on :8081
 ```
 
 ## Status
 
-- [x] scaffold — this commit
+- [x] scaffold
 - [x] stateless core implemented (types, routing, no session)
 - [x] at least one extension surface (Tasks)
 - [x] benchmark harness vs. the session-pinned pattern
 - [x] measured numbers in `RESULTS.md`
 
 ## What broke and how I found it
-
-*Empty — populate as it happens. This section is the part reviewers actually read.*
 
 ### 2026-10-13 · Spec verification found the implementation was not conformant
 
@@ -67,7 +70,8 @@ All load-bearing divergences were fixed. See
 
 ## Notes
 
-- Wire types verified against the published 2026-07-28 specification.
-  See [docs/SPEC-NOTES.md](docs/SPEC-NOTES.md) for the verification record.
+- Wire types checked against the published 2026-07-28 specification; the record,
+  including the divergences that remain, is in
+  [docs/SPEC-NOTES.md](docs/SPEC-NOTES.md).
 - The registry is the seam where risk classification and approval gates land in
   the follow-on project; see [docs/DECISIONS.md](docs/DECISIONS.md).
